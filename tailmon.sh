@@ -225,34 +225,14 @@ _VerifySignature_()
 #Export public keys
 cat <<EOF > $publickey1
 -----BEGIN PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAzPSyYvz9gHG1VND2E1o7
-uAsM77V1KobSG+Nq8hwinfO99vmho6PUW/lkCP75Ia3gF0L/dW53vuJgKN/X/IH6
-7wyjEzV5ua+H9AbBznDSO7Fg3kZQh2Pe87RBRmL6FA25mwqw9wQU4NPAjqx+1n7h
-LDUBqfRkrPsKLzmysf66KT9tyuXkqJPRuRtsjasXeD+by1sIZJNc0VFVxcsJXXRW
-IV3ktEOxNfs+j2Dn9c8UasPZw6pXFWDgc60JAe+8H97W/fuje+Ex2vboeiVp+mtR
-bJKcStLEsGWa+JH7Z9Ik7DodK45/S1G8oKcrxd4e5QV0fWGGCfuDUt6dTKx47RDJ
-93oUV1AttnraJUw91sOTbvLlJCGC58VqDrLdfp/8mpxsBjrk4933ud5uVNHDMv/7
-YZodHeXNOzjYNJ/t2VJBOhCH0frLRUf4zEZYxb3LWjfuA7haEgkr70LFE8JfFZ0Q
-pDyobkYHaeiNxsZi4q1skC62txPszB4Z2k36xQP77N5rNdlTewvQIuBOWRO/MB1x
-mmYkHJhe2ygyDBoEoftuBUK5WuIsWp9aMecX1Cszrgx4oSgSEYtdRriA18aXHFj0
-//D4dpD/4kSDZnBHnxXiBCwVhp0I5z58KwYW5J95tnffIwI4PteqGDGJS2mgA66b
-nutcMLSE3AAnkD1/PCQzjusCAwEAAQ==
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAESqXp/4XGeWMLRU74BxvdPnYnTGTb
+z8HG1FRVeNtFCjNZjE/5eIygjnffdwS7Ax2PlpjI2LSx0K9lQrmukEikSQ==
 -----END PUBLIC KEY-----
 EOF
 cat <<EOF > $publickey2
 -----BEGIN PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAksTt+rKwlpYfE+jr9QuI
-mne1Y69v81cENTWbmEQ9tLaeNVBhy3eVtPIAa48tOBaZWwi8aqUqfF1fgHIccOKX
-SXGM9t+uUmCbLdb7syMcrGlOczA+K/PJo1LfIbjyLZ25M4eAb1XbP5GgF7xgY43o
-oRlO6digOXlBV0P7AxMlFYhvMN7EjPDjx7/LeIMHcTkOvI+KSsiA1PHyo9kx2+lV
-sa7ich/XWt3TgH1TLWTdvmivX5jB8oMr9wms0rHb6BN5zaAJzSmohO1CTvfbmyXf
-fsR+1Xmh4H1ZoEausI43E5O6Va530BKbfH3I+KdrkbbPpZ7Gtbpcsto4P1N8lJUy
-bvIQW3adXzq1lRZaOwk8BB82QTy5FxD8U2d6dBnTDIp+zcp73vPGTQuOsN5LvLjP
-OU3DSRRVx0/2v2frWX8bn+pFQJcIAK3AzVCgyjxIJid+sfsPn23k2BV47dcAEvFU
-Olph+Gcnfo+Wo13U+cGQqFBdoDVEHYpU6FQsQekWyZt+8r9WjBmNyaWmdp3oUSZ8
-zANTHYO8dR0xMM2KhXdV3emiM3rkSNEMBYrtXgXtFKxopLv2fJfMIyQBT1X3uoCi
-K9qFBRCPeFW+G7oVuMlDi99IG0yne6hRaXepjaQbcCzsohIrZkmpZVOnZaNfiHYu
-HM01xOSdPkXCmylBjpgrJfUCAwEAAQ==
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAESqXp/4XGeWMLRU74BxvdPnYnTGTb
+z8HG1FRVeNtFCjNZjE/5eIygjnffdwS7Ax2PlpjI2LSx0K9lQrmukEikSQ==
 -----END PUBLIC KEY-----
 EOF
 
@@ -308,19 +288,14 @@ fi
 #Convert base64 signature to binary
 openssl base64 -d -in $sigfile -out $sigfile2
 
-#Verify signature of unsigned file with public key 1 (PSS padding)
-#openssl dgst -verify $publickey1 -keyform PEM -sha256 -signature $sigfile2 -binary $origfile >/dev/null 2>&1
-openssl dgst -verify $publickey1 -keyform PEM -sha256 -sigopt rsa_padding_mode:pss \
-	-sigopt rsa_pss_saltlen:32 -signature $sigfile2 $origfile >/dev/null 2>&1
-
+#Verify signature of unsigned file with public key 1 (EC P-256)
+openssl dgst -verify $publickey1 -keyform PEM -sha256 -signature $sigfile2 $origfile >/dev/null 2>&1
 if [ $? -eq 0 ]; then
         [ "$silentARG" != "silent" ] && \
         echo "Good signature with key 1"
 else
-        #Verify signature of unsigned file with public key 2 (PSS paddung)
-        #openssl dgst -verify $publickey2 -keyform PEM -sha256 -signature $sigfile2 -binary $origfile >/dev/null 2>&1
-	openssl dgst -verify $publickey2 -keyform PEM -sha256 -sigopt rsa_padding_mode:pss \
-		-sigopt rsa_pss_saltlen:32 -signature $sigfile2 $origfile >/dev/null 2>&1
+	#Verify signature of unsigned file with public key 2 (EC P-256)
+	openssl dgst -verify $publickey2 -keyform PEM -sha256 -signature $sigfile2 $origfile >/dev/null 2>&1
         if [ $? -eq 0 ]; then
                 [ "$silentARG" != "silent" ] && \
                 echo "Good signature with key 2"
@@ -4745,17 +4720,8 @@ done
 exit 0
 
 #} #2>&1 | tee $LOG | logger -t $(basename $0)[$$]  # uncomment/comment to enable/disable debug mode
-#Signed Sat Nov 21 16:07:15 UTC 2026
+#Signed Sat Nov 21 21:07:12 UTC 2026
 #-----BEGIN SIGNATURE-----
-#J3BSrUxddDxjQOtxommGy6XBjBRF+IM2hrpgJTSZM1MngWjs0/WAYG1I2YkYL5nW
-#LeNxE/tbGfDuefCuTcHd62vN4YlwRnEEPH4upWGD8pLugPdGkGbys2dapvLc/mu+
-#HmMK4+LoZ6Dpx85WNOGePs16GlYFDXDAXjeOjbJBjika9q68ZtiBXgKDlX073MoC
-#w5W3doHpdsLmJotJzldxtJsdg9BKGf49VIYc/R2R+mGk3XrNSuvbkx5mffXPLvRu
-#PaBGJk9BHI4yqM1Hzdc0y5c6MCZV/lXJC7elWiUGoAzWmQGF5vMtT6H01vg8Wv89
-#0mwPpBphdjx0gRKzy/RP32GmmiFMJh5RtoI3c5IGpco8eNiVTjhRCXLMS+guPIFk
-#XiKvq0T1dxnX3QICtywKv+NoIJ6xcNfQaK98ixuDwBS2lM0Rao6j483RUeRGbTxn
-#mSe0gIah6i23yF4oRu9YCvhF2PnDhM7M9ltkArb57A6Skmb9TI8mU566/6R0hGZ0
-#LFzTSw0wchY7T314O2h43Kg0ipKj8VARC2VI/heZ3AIBxYC4b/uvAC6OZ0VSvriR
-#DCKxlytKr6tbaepYt1TmWXYlZc+qpP1KIaWavFoWh7R9xTRRKpoUAQoQWSET+jVG
-#msTFmheifevnNh8mzn8bmsk0GWLClMIwqMDwTFk/jtU=
+#MEQCIB7nE6C9la1F5MwptTiUuI318Yhv2mLKAOg1ZWHWC3t2AiBNa3LuaHCPI8Ik
+#OFrOXvAXnAuTAHhjdETgFVygimSxGg==
 #-----END SIGNATURE-----
